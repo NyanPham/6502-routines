@@ -140,7 +140,16 @@ FMul:
     clc 
 Mul1:
     jsr RTlog1          ; mant1 and e right. (Product and MPlier)
-    
+    bcc Mul2            ; if carry clear, skip partial product
+    jsr Add             ; add multiplicand to product 
+
+Mul2:
+    dey                 ; next mul iteration
+    bpl Mul1            ; loop until done
+MDEnd:
+    lsr Sign            ; test sign (even/odd)
+NormX:
+    bcc Norm            ; if even, normalize product, else complement 
 FCompl:
     sec                 ; set carry for subtract
     ldx #03             ; index for 3 byte subtraction 
@@ -150,8 +159,42 @@ Compl1:
     sta X1,X 
     dex
     bne Compl1
-    beq AddEnd          
+    beq AddEnd    
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Exp/Mant2 / Exp/Mant1 result in Exp/mant1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+FDiv:
+    jsr MD1             ; take abs value of mant1, mant2
+    sbc X1              ; subtract Exp1 from Exp2 
+    jsr MD2             ; save as quotient exp
+Div1:
+    sec     
+    ldx #02             ; index for 3-byte instruction
+Div2:
+    lda M2,X 
+    sbc E,X             ; subtract a byte of e from Mant2
+    pha                 ; save on stack
+    dex                 
+    bpl Div2 
+    ldx #$FD            ; index ofr 3-byte conditional move
+Div3:
+    pla                 ; pull a byte of difference off stack
+    bcc Div4            ; if mant2 < E then don't restore mant2
+    sta M2+3,X          
+Div4:
+    inx
+    bne Div3
+    rol M1+2
+    rol M1+1
+    rol M1
+    asl M2+2
+    rol M2+1
+    rol M2
+    bcs Overflow
+    dey
+    bne Div1 
+    beq MDEnd
 MD2:
     stx M1+2            ; X is 0 after FCompl
     stx M1+1            ; clear Mant1 (3 bytes) for mul/div
@@ -171,3 +214,16 @@ OverCheck:
     bpl MD3 
 Overflow:
     brk 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Convert Exp/mant1 to integer in M1 (high) and M1+1(low)
+; Exp/mant2 uneffected
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
+    jsr RTAR            ; shift mant1 rt and increment Exponent
+Fix:
+    lda X1              ; check exponent
+    cmp #$8E            ; is exponent 14?
+    bne Fix-3           ; no, shift
+RTRN:
+    rts                 ; return
+    
