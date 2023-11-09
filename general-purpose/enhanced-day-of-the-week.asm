@@ -7,7 +7,7 @@
 
 ; The information at Date must be in the following format:
 
-; Offset        Data 
+; Offset        Data    
 ; -------------------------------------------------------------
 ; $00           Year MSB. For eg, year 2008 -> $07 
 ; $01           Year LSB. For eg, year 2008 -> $D8 (07D8 = 2008)
@@ -21,7 +21,7 @@
 _origin_ = $02000               ; assembly address
 zpptr    = $10                  ; working ZP pointer
 
-daysweek = 7                    ; days in a week 
+dayswk = 7                    ; days in a week 
 march    = $03                  ; March in binary 
 s_bits   = 8                    ; number of bits in a byte
 s_byte   = 1                    ; size of a byte or char 
@@ -84,14 +84,71 @@ cdow03:
     ldy #>y3fac
     jsr stafacb                 ; store to accumulator #2 
     jsr dpdiv 
-    stx y4 
-    sty y4+1 
-    
-; Combine terms
+    stx y3 
+    sty y3+1 
 
+; Compute Y1/400
+    jsr stay1fac 
+    ldx #<y4fac
+    ldy #>y4fac 
+    jsr stafacb                 ; copy to accumulator #2
+    jsr dpdiv 
+    stx y4
+    sty y4+1 
+
+; Combine terms
     clc 
     lda y1 
     adc y2 
+    sta acm1 
+    lda y1+1 
+    adc y2+1
+    sta acm1+1 
+    sec 
+    lda acm1 
+    sbc y3 
+    sta acm1
+    lda acm1+1
+    sbc y3+1
+    sta acm1+1 
+    clc 
+    lda acm1
+    adc y4
+    sta acm1 
+    lda acm1+1
+    adc y4+1 
+    sta acm1+1 
+    pla                         ; get month 
+    tax 
+    dex 
+    clc 
+    lda acm1 
+    adc dowmctab,x 
+    bcc codnw04
+
+    inc acm1+1 
+cdown04:
+    sta acm1 
+    clc 
+    lda date 
+    adc acm1 
+    bcc cdown05
+
+    inc acm1+1 
+
+cdown05:
+    sta acm1 
+    ldx #<dayswk 
+    ldy #>dayswk 
+    jsr stafacb 
+    jsr dpdiv 
+    adc #1 
+    
+    ldx zpptr
+    ldy zpptr+1
+    rts 
+
+
 
 
 ;========================================================
