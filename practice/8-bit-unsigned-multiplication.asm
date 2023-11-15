@@ -11,11 +11,10 @@ NextBit:
     bcc Align
     clc 
     adc $21
-Align:
-    lsr a 
+Align:  
+    lsr a
     ror $22
     dex
     bne NextBit
     sta $23
-    rts 
-
+    rts

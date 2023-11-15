@@ -13,19 +13,20 @@ NextBit:
     asl $22
     rol $23
     rol $24
-    rol $25 
-    sec
+    rol $25
+
+    sec 
     lda $24
     sbc $20
-    pha 
+    tay 
     lda $25
     sbc $21
     bcc CountDown
-    inc $22
+
+    sty $24
     sta $25
-    pla 
-    sta $24
+    inc $22
 CountDown:
-    dex 
+    dex
     bne NextBit
-    rts
+    rts 

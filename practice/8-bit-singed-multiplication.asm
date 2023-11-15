@@ -7,13 +7,12 @@
 Mul8S:
     lda #$80
     bit $20
-    bpl MPos
+    bpl Mpos
     bit $21
     bpl Swap
-
-; Both are neg - Complement both
-Compl:
-    asl a                       ; clear sign to pos
+; Both negative, negate both
+Negate:
+    asl 
     sta $24
     sbc $21
     sta $21
@@ -21,38 +20,38 @@ Compl:
     sec
     sbc $20
     sta $20
-    jmp DoMultiply
+    jmp GoMutiply
 
-; Multiplier neg, multiplicand pos - swap
+; Multiplier negative, Muliplicand positive - Swap
 Swap:
     sta $24
     lda $21
     ldx $20
     stx $21
     sta $20
-    jmp DoMultiply
+    jmp GoMultiply
 
-; Multiplier pos - Check multiplicand to be negative or not for product sign
-MPos:
+; Multipler positive, check sign from Multiplicand
+Mpos:
     bit $21
     bmi Mask1
     asl
 Mask1:
     sta $24
-    
-DoMultiply:
+
+GoMutiply:
     lda #00
     ldx #08
 NextBit:
     lsr $20
     bcc Align
-    clc
+    clc 
     adc $21
 Align:
-    lsr a 
+    lsr a
     ora $24
     ror $22
     dex
     bne NextBit
     sta $23
-    rts 
+    rts

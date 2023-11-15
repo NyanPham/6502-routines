@@ -3,15 +3,15 @@
 ; $21. The result replaces the number that starts in 
 ; location $21. The byte count is contained in location $20.
 
-Subtract:
+MPSub:
     ldy $20
     ldx #00
-    sec
+    sec 
 NextByte:
     lda $21,x
-    sbc $51,x
+    sbc $51,x 
     sta $21,x
-    inx 
+    inx
     dey
-    bne NextByte    
-    rts
+    bne NextByte
+    rts 

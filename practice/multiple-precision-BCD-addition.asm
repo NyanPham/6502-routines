@@ -4,16 +4,16 @@
 ; count is contained in location $20.
 
 AddBCD:
+    sed
     ldy $20
     ldx #00
-    clc
-    sed
+    clc 
 NextByte:
     lda $21,x
     adc $51,x
     sta $21,x
     inx
-    dey 
+    dey
     bne NextByte
     cld
     rts 
