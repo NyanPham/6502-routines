@@ -8,24 +8,23 @@ Mul16U:
     sta $26
     sta $27
     ldx #16
+
 NextBit:
     lsr $21
     ror $20
     bcc Align
-
-    clc
+    clc 
     lda $26
     adc $22
     sta $26
     lda $27
     adc $23
     sta $27
-Align:
+Align:  
     lsr $27
     ror $26
     ror $25
     ror $24
-
     dex
     bne NextBit
     rts 

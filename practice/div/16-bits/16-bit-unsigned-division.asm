@@ -15,18 +15,18 @@ NextBit:
     rol $24
     rol $25
 
-    sec 
+    sec
     lda $24
     sbc $20
     tay 
     lda $25
     sbc $21
-    bcc CountDown
+    bcc Countdown
 
     sty $24
     sta $25
     inc $22
-CountDown:
+Countdown:
     dex
     bne NextBit
-    rts 
+    rts

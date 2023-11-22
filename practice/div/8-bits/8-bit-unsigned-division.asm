@@ -3,18 +3,19 @@
 ; quotient is returned in location $21, replacing the dividend,
 ; and the 8-bit remainder is returned in location $22.
     
-Div8U:  
+Div8U:
     lda #00
     ldx #08
 NextBit:
     asl $21
-    rol a
+    rol a 
     cmp $20
-    bcc CountDown
+    bcc Countdown
+
     sbc $20
-    inc $21 
-CountDown:
-    dex 
+    inc $21
+Countdown:  
+    dex
     bne NextBit
     sta $22
-    rts
+    rts 

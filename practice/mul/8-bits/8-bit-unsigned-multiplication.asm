@@ -5,16 +5,17 @@
 
 Mul8U:
     lda #00
-    ldx #08
+    ldx $#08
 NextBit:
     lsr $20
     bcc Align
-    clc 
+
+    clc
     adc $21
-Align:  
+Align:
     lsr a
     ror $22
     dex
-    bne NextBit
+    bne NextBit 
     sta $23
-    rts
+    rts 

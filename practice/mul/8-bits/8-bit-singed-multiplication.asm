@@ -5,53 +5,50 @@
 ; sign bit mask.
 
 Mul8S:
-    lda #$80
-    bit $20
-    bpl Mpos
+    lda #80         
     bit $21
-    bpl Swap
-; Both negative, negate both
-Negate:
-    asl 
+    bpl MPos
+    bit $20
+    bpl Swap 
+NegBoth:
+    asl a 
     sta $24
-    sbc $21
-    sta $21
-    lda #00
-    sec
     sbc $20
     sta $20
-    jmp GoMutiply
-
-; Multiplier negative, Muliplicand positive - Swap
-Swap:
-    sta $24
-    lda $21
-    ldx $20
-    stx $21
-    sta $20
+    lda #00
+    clc
+    sbc $21
+    sta $21
     jmp GoMultiply
 
-; Multipler positive, check sign from Multiplicand
-Mpos:
+Swap:
+    sta $24
+    lda $20
+    ldx $21
+    stx $20
+    sta $21
+    jmp GoMultiply
+MPos:
     bit $21
-    bmi Mask1
-    asl
-Mask1:
+    bmi MaskNeg
+    asl a
+MaskNeg:
     sta $24
 
-GoMutiply:
+GoMultiply:
     lda #00
     ldx #08
 NextBit:
     lsr $20
-    bcc Align
+    bcc Align 
     clc 
     adc $21
+
 Align:
     lsr a
     ora $24
     ror $22
     dex
     bne NextBit
-    sta $23
+    
     rts

@@ -8,9 +8,7 @@ Div8S:
     ldy #00
     bit $20
     bpl CheckDividend
-.NegateDivisor:
     tya 
-    sec
     sbc $20
     sta $20
     ldy #80
@@ -18,16 +16,16 @@ Div8S:
 CheckDividend:
     bit $21
     bpl GoDivide
-.NegateDividend:
     lda #00
     sec
     sbc $21
     sta $21
+
     tya 
     ora #40
-    tay
+    tay 
 
-GoDivide:   
+GoDivide:
     sty $23
     lda #00
     ldx #08
@@ -35,25 +33,27 @@ NextBit:
     asl $21
     rol a
     cmp $20
-    bcc CountDown
+    bcc Countdown
+
     sbc $20
     inc $21
-CountDown:
+Countdown:
     dex 
     bne NextBit
     sta $22
 
-    ; Restore sign
+RtsSign:
     lda #$C0
-    bit $23
+    bit $23 
     beq Done
-    bvs NegR 
+    bvs NegR
+    
 NegQ:
     lda #00
     sec
     sbc $21
     sta $21
-    jmp Done
+    rts 
 
 NegR:
     lda #00
@@ -64,4 +64,4 @@ NegR:
     bpl NegQ
 
 Done:
-    rts 
+    rts
